@@ -1,6 +1,7 @@
 #include "Matrix.hpp"
 #include <iostream>
 #include <vector>
+#include <cstring>  
 
 /*
     Notebook.cpp.
@@ -181,6 +182,55 @@ vector<double> getVector(string const& s, int size,int start, int end){
     cout << result->at((unsigned long)0) << endl;
     return *result;
 }
+int getSecondOccurance(string s,char ch){
+    int counter= 0;
+    for(int i=0; i<s.length();i++){
+        if(s.at((unsigned long)i)==ch){
+            counter++;
+            if(counter==2){
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+bool checkEscapeForVector(string s, int vectorSize, int indexStart){
+    int counter = 0;
+    for(int i=indexStart ; i<s.length();i+=2){
+        if(s.at((unsigned long)i)!=' '){
+            return false;
+        } 
+        counter++;
+        if ( counter == vectorSize -1 ){
+        return true;
+        }
+    }
+    return false;
+}
+bool checkEscape(string const &s, int vectorSize){
+    for ( int i =2 ; i < s.length(); i+=2*vectorSize-1  + 4 ){
+        if(!checkEscapeForVector(s, vectorSize, i)){
+            return false;
+        }
+    }
+    return true;
+}
+bool checkSogar(string s, char sogar, int range, int firstIndex){
+    for(int i = firstIndex ; i< s.length(); i+=range){
+        if(s.at((unsigned long)i)!= sogar){
+            return false;
+        }
+    }
+    return true;
+}
+bool checkComma(string s, int range, int firstIndex){
+    for(int i = firstIndex ; i< s.length(); i+=range){
+        if(s.at((unsigned long)i)!= ','){
+            return false;
+        }
+    }
+    return true;
+}
 istream& operator>> (istream& in, Matrix& m){ // good
     int index = 0;
     int index_ = 0;
@@ -193,38 +243,45 @@ istream& operator>> (istream& in, Matrix& m){ // good
         }
         s+=c;
     }
-    string sub_s ="],[";
-    string sub_s1 = "[1 1 1 1], [1 1 1 1], [1 1 1 1]";
-    std::vector<double> arr = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    if(s==sub_s1){
-        Matrix new_m = Matrix(arr,3, 4);
-        return in;
-    }
-    if(int(s.find(sub_s))!=0){
-            if(s==sub_s1){
-                throw std::invalid_argument("Bad syntax"); 
-            }
-    }
-    
-    
+//"[1 1 1 1], [1 1 1 1], [1 1 1 1]\n"
     int size_of_vector = (int)s.find(']')/2;
+    if (getSecondOccurance(s,'[') ==-1 ||getSecondOccurance(s,']')==-1){
+        throw std::invalid_argument("Bad syntax of input1"); 
+    } 
+    int rangeOpenSogar = getSecondOccurance(s,'[')- (int)s.find('[');
+    int rangeCloseSogar = getSecondOccurance(s, ']') - (int)s.find(']');
+    int rangeComma = getSecondOccurance(s, ',') - (int)s.find(',');
+    if(!checkEscape(s, size_of_vector)){
+        throw std::invalid_argument("Bad syntax of input2"); 
+    }
+    if(!checkSogar(s,'[',rangeOpenSogar, 0)){
+        throw std::invalid_argument("Bad syntax of input3"); 
+    }
+    if(!checkSogar(s,']',rangeCloseSogar, s.find(']'))){
+        throw std::invalid_argument("Bad syntax of input4"); 
+    }
+    if(!checkComma(s,rangeComma,s.find(','))){
+        throw std::invalid_argument("Bad syntax of input5"); 
+    }
     int number_of_vectors = (int)s.length()/(size_of_vector*2);
     unsigned long R = (unsigned long)number_of_vectors;
     unsigned long C = (unsigned long)size_of_vector;
     
     int index_row=0;
     int index_col = 0;
-    std::vector<double> zero((unsigned long)size_of_vector, 0);
-    Matrix new_m = Matrix(zero,(int)R, (int)C);
-    for(int i=0; i <number_of_vectors; i++){
-        int start = i*(size_of_vector*2+3);
-        int end = start + size_of_vector*2;
-        vector<double> v = getVector(s, size_of_vector, start, end);
-        for(int j=0; j<size_of_vector; j++){
-            new_m.matrix->at((unsigned long)i).at((unsigned long)j) = v.at((unsigned long)j);
+    std::vector<double> zero(C*R, 0);
+    int index_vector = 0;
+    for(int i=0; i <s.length(); i++){
+        char ch_temp = s.at((unsigned long)i);
+        std::string str_temp{ch_temp};
+        if(is_number(str_temp)){
+            double double_temp = (double)ch_temp;
+            zero.at((unsigned long)index_vector) = double_temp-N;
+            index_vector++;
         }
     }
-    cout << new_m << endl;
+    Matrix new_m = Matrix(zero,(int)R, (int)C);
+    //cout << new_m << endl;
     return in;
 }
 //------------------------------------------
