@@ -155,6 +155,7 @@ ostream& operator<< (ostream& out, const Matrix& m){ // good
             out << ']';
         }
     }
+
     return out;
 }
 
@@ -263,10 +264,12 @@ istream& operator>> (istream& in, Matrix& m){ // good
     if(!checkComma(s,rangeComma,s.find(','))){
         throw std::invalid_argument("Bad syntax of input5"); 
     }
-    int number_of_vectors = (int)s.length()/(size_of_vector*2);
+    int number_of_vectors = (int)(s.length())/(size_of_vector*2);
+    if(number_of_vectors%2 ==0){
+        number_of_vectors -=1;
+    }
     unsigned long R = (unsigned long)number_of_vectors;
     unsigned long C = (unsigned long)size_of_vector;
-    
     int index_row=0;
     int index_col = 0;
     std::vector<double> zero(C*R, 0);
@@ -281,7 +284,7 @@ istream& operator>> (istream& in, Matrix& m){ // good
         }
     }
     Matrix new_m = Matrix(zero,(int)R, (int)C);
-    //cout << new_m << endl;
+    m = new_m;
     return in;
 }
 //------------------------------------------
