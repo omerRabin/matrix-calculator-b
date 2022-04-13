@@ -4,7 +4,7 @@
 #include <cstring>  
 
 /*
-    Notebook.cpp.
+    Matrix.cpp.
     Author: Omer Rabin.
 */
 using namespace std;
